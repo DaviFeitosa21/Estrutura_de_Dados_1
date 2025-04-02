@@ -63,8 +63,6 @@ void PilhaExibir(struct Pilha *p) {
             posPilha--;
         }
     }
-
-
 }
 
 void PilhaExibirTopo(struct Pilha *p) {
