@@ -16,9 +16,12 @@ typedef struct {
     int ultimo;
 }Fila;
 
-void iniciar() {
-    
+void iniciar(Fila *fila) {
+    fila->primeiro = 0;
+    fila-> ultimo = -1;
 }
+
+int cheia
 
 
 
