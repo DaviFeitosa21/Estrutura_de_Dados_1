@@ -3,15 +3,14 @@
 #include <string.h>
 
 #define TAM 10
-#define TAM_NOME 100
 
 typedef struct{
-    char nome[TAM_NOME];
-    int idade;
-} Pessoa;
+    int id;
+    char nome[50];
+} Aviao;
 
 typedef struct {
-    Pessoa itens[TAM];
+    Aviao itens[TAM];
     int primeiro;
     int ultimo;
 }Fila;
@@ -39,24 +38,26 @@ int vazia(Fila *fila) {
     }
 }
 
-void enfileirar(Fila *fila, Pessoa valor) {
+void enfileirar(Fila *fila, Aviao aviao) {
     if(cheia(fila) == 1) {
         printf("\nFila cheia.\n");
     }
     else {
         fila->ultimo++;
-        fila->itens[fila->ultimo] = valor;
+        fila->itens[fila->ultimo] = aviao;
+        printf("Aviao %s adicionado a fila!", aviao.nome);
     }
 }
 
 void desenfileirar(Fila *fila) {
-    Pessoa auxiliar;
+    Aviao auxiliar;
 
     if(vazia(fila) == 1) {
         printf("\nFila vazia!\n");
     }
     else {
         auxiliar = fila->itens[fila->primeiro];
+        printf("Aviao %s autorizado para decolagem.\n", fila->itens[fila->primeiro].nome);
         fila->primeiro++;
     }
 }
@@ -66,9 +67,9 @@ void mostrarPrimeiro(Fila *fila) {
         printf("Fila vazia!");
     }
     else {
-        printf("\nO primeiro da fila e Nome: %s | Idade: %d\n",
-            fila->itens[fila->primeiro].nome,
-            fila->itens[fila->primeiro].idade);
+        printf("\nO primeiro aviao da fila e ID: %d | Nome: %s\n",
+            fila->itens[fila->primeiro].id,
+            fila->itens[fila->primeiro].nome);
     }
 }
 
@@ -77,7 +78,7 @@ void tamanhoFila(Fila *fila) {
         printf("\nFila vazia!\n");
     }
     else {
-        printf("\nO tamanho da fila e %d\n", (fila->ultimo - fila->primeiro) + 1);
+        printf("\nO tamanho da fila de decolagem e %d\n", (fila->ultimo - fila->primeiro) + 1);
     }
 }
 
@@ -86,16 +87,16 @@ void exibir(Fila *fila) {
     printf("\n---Fila atual---\n");
 
     while(i <= fila->ultimo) {
-        printf("Nome: %s | Idade: %d\n",
-               fila->itens[i].nome,
-               fila->itens[i].idade);
+        printf("ID: %d | Nome: %s\n",
+               fila->itens[i].id,
+               fila->itens[i].nome);
         i++;
     }
 }
 
 int main() {
     int opcao=-1;
-    Pessoa valor;
+    Aviao item;
     Fila fila;
 
     iniciar(&fila);
@@ -114,13 +115,13 @@ int main() {
             switch(opcao) {
 
             case 1:
-                printf("Digite o nome: ");
-                scanf("%s", valor.nome);
+                printf("Digite o ID: ");
+                scanf("%d", &item.id);
                 
-                printf("Digite a idade: ");
-                scanf("%d", &valor.idade);
+                printf("Digite o Nome: ");
+                scanf(" %s", item.nome);
 
-                enfileirar(&fila, valor);
+                enfileirar(&fila, item);
                 break;
 
             case 2:
@@ -147,4 +148,3 @@ int main() {
 
     return 0;
 }
-

@@ -8,10 +8,10 @@
 typedef struct{
     char nome[TAM_NOME];
     int idade;
-} Pessoa;
+} Paciente;
 
 typedef struct {
-    Pessoa itens[TAM];
+    Paciente paciente[TAM];
     int primeiro;
     int ultimo;
 }Fila;
@@ -39,24 +39,26 @@ int vazia(Fila *fila) {
     }
 }
 
-void enfileirar(Fila *fila, Pessoa valor) {
+void enfileirar(Fila *fila, Paciente paciente) {
     if(cheia(fila) == 1) {
         printf("\nFila cheia.\n");
     }
     else {
         fila->ultimo++;
-        fila->itens[fila->ultimo] = valor;
+        fila->paciente[fila->ultimo] = paciente;
+        printf("\nPaciente %s inserido na fila de espera!\n", paciente.nome);
     }
 }
 
 void desenfileirar(Fila *fila) {
-    Pessoa auxiliar;
+    Paciente auxiliar;
 
     if(vazia(fila) == 1) {
         printf("\nFila vazia!\n");
     }
     else {
-        auxiliar = fila->itens[fila->primeiro];
+        auxiliar = fila->paciente[fila->primeiro];
+        printf("\nPaciente %s chamado para atendimento!\n", fila->paciente[fila->primeiro].nome);
         fila->primeiro++;
     }
 }
@@ -66,9 +68,9 @@ void mostrarPrimeiro(Fila *fila) {
         printf("Fila vazia!");
     }
     else {
-        printf("\nO primeiro da fila e Nome: %s | Idade: %d\n",
-            fila->itens[fila->primeiro].nome,
-            fila->itens[fila->primeiro].idade);
+        printf("\nO proximo paciente da fila e Nome: %s | Idade: %d\n",
+            fila->paciente[fila->primeiro].nome,
+            fila->paciente[fila->primeiro].idade);
     }
 }
 
@@ -77,7 +79,7 @@ void tamanhoFila(Fila *fila) {
         printf("\nFila vazia!\n");
     }
     else {
-        printf("\nO tamanho da fila e %d\n", (fila->ultimo - fila->primeiro) + 1);
+        printf("\nO tamanho da fila de espera e %d\n", (fila->ultimo - fila->primeiro) + 1);
     }
 }
 
@@ -87,15 +89,40 @@ void exibir(Fila *fila) {
 
     while(i <= fila->ultimo) {
         printf("Nome: %s | Idade: %d\n",
-               fila->itens[i].nome,
-               fila->itens[i].idade);
+               fila->paciente[i].nome,
+               fila->paciente[i].idade);
         i++;
     }
 }
 
+void atendPrioritario(Fila *fila) {
+    if(vazia(fila) == 1) {
+        printf("\nFila vazia!\n");
+    }
+    else {
+        int maisVelho = fila->paciente[fila->primeiro].idade;
+        int indiceMaisVelho = fila->primeiro;
+
+        for (int i = fila->primeiro + 1; i <= fila->ultimo; i++) {
+            if (fila->paciente[i].idade > maisVelho) {
+                maisVelho = fila->paciente[i].idade;
+                indiceMaisVelho = i;
+            }
+        }
+
+        printf("Paciente prioritario chamado: %s (Idade: %d)\n", fila->paciente[indiceMaisVelho].nome, fila->paciente[indiceMaisVelho].idade);
+
+        for (int i = indiceMaisVelho; i < fila->ultimo; i++) {
+            fila->paciente[i] = fila->paciente[i + 1];
+        }
+
+        fila->ultimo--;
+    }
+}
+
 int main() {
-    int opcao=-1;
-    Pessoa valor;
+    int opcao = -1;
+    Paciente paciente;
     Fila fila;
 
     iniciar(&fila);
@@ -106,8 +133,9 @@ int main() {
             printf("Escolha uma opcao\n");
             printf("1: Enfileirar\n");
             printf("2: Desenfileirar\n");
-            printf("3: Mostrar primeiro\n");
-            printf("4: Tamanho\n");
+            printf("3: Atendimento Prioritario\n");
+            printf("4: Mostrar primeiro\n");
+            printf("5: Tamanho\n");
        
             scanf("%d",&opcao);
 
@@ -115,12 +143,12 @@ int main() {
 
             case 1:
                 printf("Digite o nome: ");
-                scanf("%s", valor.nome);
+                scanf("%s", paciente.nome);
                 
                 printf("Digite a idade: ");
-                scanf("%d", &valor.idade);
+                scanf("%d", &paciente.idade);
 
-                enfileirar(&fila, valor);
+                enfileirar(&fila, paciente);
                 break;
 
             case 2:
@@ -128,10 +156,14 @@ int main() {
                 break;
 
             case 3:
-                mostrarPrimeiro(&fila);
+                atendPrioritario(&fila);
                 break;
 
             case 4:
+                mostrarPrimeiro(&fila);
+                break;
+
+            case 5:
                 tamanhoFila(&fila);
                 break;
 
