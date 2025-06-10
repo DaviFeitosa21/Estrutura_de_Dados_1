@@ -1,176 +1,102 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-typedef struct ITEM {
-    int item;
-    struct ITEM *proximo;
+
+#define MAX 100
+
+typedef struct ALUNO {
+    char nome[MAX];
+    int matricula;
+    struct ALUNO *proximo;
 }*tipoLista;
 
-tipoLista criarItem(int valor) {
-    tipoLista novoItem = (tipoLista) malloc(sizeof(tipoLista));
+tipoLista criarItem(char nome[], int matricula) {
+    tipoLista novoItem = (tipoLista) malloc(sizeof(struct ALUNO));
 
     if(novoItem == NULL) {
         printf("\nErro ao criar item!\n");
         return NULL;
     }
     else {
-        novoItem->item = valor;
+        strcpy(novoItem->nome, nome);
+        novoItem->matricula = matricula;
         novoItem->proximo = NULL;
         return novoItem;
     }
 }
 
-tipoLista inserirEsquerda(int valor, tipoLista lista) { 
-    tipoLista novoItem = criarItem(valor);
-    
-    if(lista == NULL) {
-        return novoItem;
-    }
-    else {
-        novoItem->proximo = lista;    
-        return novoItem;
-    }   
-}
+tipoLista inserirOrdenado(tipoLista lista, char nome[], int matricula) {
+    tipoLista novoItem = criarItem(nome, matricula);
 
-tipoLista inserirDireita(int valor, tipoLista lista) {
-    tipoLista novoItem = criarItem(valor);
-    
-    if(lista == NULL) {
+    if(lista == NULL || strcmp(novoItem->nome, lista->nome) < 0) {
+        novoItem->proximo = lista;
         return novoItem;
     }
     else {
-        tipoLista listaAuxiliar = lista;
-        while(listaAuxiliar->proximo != NULL) {
-            listaAuxiliar = listaAuxiliar->proximo;
+        //novoItem->proximo = lista;
+
+        tipoLista listaAux = lista;
+        while(listaAux->proximo != NULL && strcmp(novoItem->nome, listaAux->proximo->nome) > 0) {
+            listaAux = listaAux->proximo;
         }
 
-        listaAuxiliar->proximo = novoItem;
-        novoItem->proximo = NULL;
+        novoItem->proximo = listaAux->proximo;
+        listaAux->proximo = novoItem;
+
         return lista;
     }
 }
 
-tipoLista removerEsquerda(tipoLista lista) {
-    if(lista==NULL) {
+tipoLista removerAluno(tipoLista lista, int matricula) {
+    if(lista == NULL) {
         printf("\nVazia!\n");
         return lista;
     }
     else {
+        tipoLista atual = lista;
+        tipoLista anterior = NULL;
 
-        tipoLista listaAuxiliar;
-        listaAuxiliar = lista;
-        lista = lista->proximo;
-
-        free(listaAuxiliar);
-        listaAuxiliar = NULL;
-    }
-    return lista;
-}
-
-tipoLista removerDireita(tipoLista lista) {
-    if(lista==NULL) {
-        printf("\nVazia!\n");
-    }
-    else {
-        if(lista->proximo == NULL) { 
-            free(lista);
-            lista = NULL;
-        }else {
-            tipoLista listaAuxiliar;
-            listaAuxiliar = lista;
-
-            while(listaAuxiliar->proximo->proximo != NULL) {
-                listaAuxiliar = listaAuxiliar->proximo;
-            }
-
-            tipoLista itemDescartar;
-            itemDescartar = listaAuxiliar->proximo;
-
-            free(itemDescartar);
-            itemDescartar = NULL;
-            listaAuxiliar->proximo = NULL;
+        if(lista->matricula == matricula) {
+            tipoLista listaAux = lista;
+            lista = lista->proximo;
+            free(listaAux);
+            printf("Aluno com matricula %d removido.\n", matricula);
+            return lista;
         }
-    }
 
-    return lista;
+        while(atual != NULL && atual->matricula != matricula) {
+            anterior = atual;
+            atual = atual->proximo;
+        }
+
+        if(atual == NULL) {
+            printf("Aluno com matrícula %d não encontrado.\n", matricula);
+            return lista;
+        }
+
+        anterior->proximo = atual->proximo;
+        free(atual);
+        printf("Aluno com matrícula %d removido.\n", matricula);
+
+        return lista;
+    }
 }
 
 void exibir(tipoLista lista) {
     printf("\n---Lista atual---\n");
 
-    if(lista==NULL) {
+    if(lista == NULL) {
         printf("\nVazia!\n");
     }
     else {
         tipoLista listaAuxiliar = lista;
 
         while(listaAuxiliar != NULL) {
-            printf("[%d] ",listaAuxiliar->item);
+            printf("Nome: %s | Matrícula: %d\n", listaAuxiliar->nome, listaAuxiliar->matricula);
             listaAuxiliar = listaAuxiliar->proximo;
         }
     }
-}
-
-void pesquisar(int valor, tipoLista lista) {
-    int contador = 0;
-    tipoLista listaAuxiliar = lista;
-    while(listaAuxiliar != NULL) {
-        if( listaAuxiliar->item == valor ) {
-            contador++;
-        }
-        listaAuxiliar = listaAuxiliar->proximo;
-    }
-    printf("\nHouve %d ocorrencia(s) do valor %d\n", contador, valor);
-}
-
-tipoLista inserirOrdenado(int valor, tipoLista lista) {
-    tipoLista novoItem = criarItem(valor);
-
-    if (lista == NULL || valor < lista->item) {
-        novoItem->proximo = lista;
-        return novoItem;
-    }
-
-    tipoLista atual = lista;
-    while (atual->proximo != NULL && atual->proximo->item < valor) {
-        atual = atual->proximo;
-    }
-
-    novoItem->proximo = atual->proximo;
-    atual->proximo = novoItem;
-
-    return lista;
-}
-
-tipoLista removerValor(int valor, tipoLista lista) {
-    if (lista == NULL) {
-        printf("\nLista vazia!\n");
-        return NULL;
-    }
-
-    tipoLista atual = lista;
-    tipoLista anterior = NULL;
-
-    while (atual != NULL && atual->item != valor) {
-        anterior = atual;
-        atual = atual->proximo;
-    }
-
-    if (atual == NULL) {
-        printf("\nValor %d não encontrado na lista.\n", valor);
-        return lista;
-    }
-
-    if (anterior == NULL) {
-        // valor está no início
-        lista = atual->proximo;
-    } else {
-        anterior->proximo = atual->proximo;
-    }
-
-    free(atual);
-    printf("\nValor %d removido da lista.\n", valor);
-    return lista;
 }
 
 int main() {
@@ -178,52 +104,33 @@ int main() {
     int valor = 0;
     tipoLista lista = NULL;
 
+    char nome[MAX];
+    int matricula;
+
     while(opcao != 0) {
         exibir(lista);
-        valor = 0;
        
         printf("\nDIGITE 0 PARA SAIR\n");
-        printf("1: Inserir no inicio\n");
-        printf("2: Inserir no final\n");
-        printf("3: Remover no inicio\n");
-        printf("4: Remover no final\n");
-        printf("5: Pesquisar\n");
-        printf("6: Inserir em ordem (meio)\n");
-        printf("7: Remover um valor específico\n");
+        printf("1: Inserir Aluno\n");
+        printf("2: Remover Aluno\n");
 
         scanf("%d",&opcao);
 
         switch(opcao) {
         case 1:
-            printf("Digite um valor\n");
-            scanf("%d",&valor);
-            lista = inserirEsquerda(valor, lista);
+            printf("Nome do aluno: ");
+            scanf(" %s", nome);
+
+            printf("Matrícula: ");
+            scanf("%d", &matricula);
+
+            lista = inserirOrdenado(lista, nome, matricula);
+            exibir(lista);
             break;
         case 2:
-            printf("Digite um valor\n");
-            scanf("%d",&valor);
-            lista = inserirDireita(valor, lista);
-            break;
-        case 3:
-            lista = removerEsquerda(lista);
-            break;
-        case 4:
-            lista = removerDireita(lista);
-            break;
-        case 5:
-            printf("Digite um valor\n");
-            scanf("%d",&valor);
-            pesquisar(valor, lista);
-            break;
-        case 6:
-            printf("Digite um valor\n");
-            scanf("%d", &valor);
-            lista = inserirOrdenado(valor, lista);
-            break;
-        case 7:
-            printf("Digite um valor\n");
-            scanf("%d", &valor);
-            lista = removerValor(valor, lista);
+            printf("Digite a matrícula do aluno a remover: ");
+            scanf("%d", &matricula);
+            lista = removerAluno(lista, matricula);
             break;
         default:
             printf("Opcao invalida!\n");
